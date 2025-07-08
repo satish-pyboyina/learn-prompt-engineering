@@ -2432,15 +2432,25 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: prompt }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyB_uKPnCdFs5tlXYA7UJW2JDw8phL2k1Pk"; // Canvas will provide this at runtime
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                // const apiKey = "AIzaSyB_uKPnCdFs5tlXYA7UJW2JDw8phL2k1Pk"; // Canvas will provide this at runtime
+                // const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                // const response = await fetch(apiUrl, {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify(payload)
+                // });
+                // const result = await response.json();
+
+                // const result = await generateGeminiHint(prompt);
+
+                const apiUrl = '/.netlify/functions/generate'; // <-- The new, simple URL
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(requestBody) 
                 });
-                const result = await response.json();
 
                 if (result.candidates && result.candidates.length > 0 &&
                     result.candidates[0].content && result.candidates[0].content.parts &&
@@ -2480,15 +2490,34 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: prompt }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyB_uKPnCdFs5tlXYA7UJW2JDw8phL2k1Pk"; // Canvas will provide this at runtime
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                // const apiKey = "AIzaSyB_uKPnCdFs5tlXYA7UJW2JDw8phL2k1Pk"; // Canvas will provide this at runtime
+                // const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                // const response = await fetch(apiUrl, {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify(payload)
+                // });
+
+                // const apiUrl = 'http://localhost:3000/api/generate'; // <-- CHANGE to your new server endpoint
+
+                // const response = await fetch(apiUrl, {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify(payload) // Send the same payload to your server
+                // });
+
+                // const result = await response.json();
+
+                // const result = await generateGeminiHint(prompt);
+
+                const apiUrl = '/.netlify/functions/generate'; // <-- The new, simple URL
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(requestBody) 
                 });
-                const result = await response.json();
 
                 if (result.candidates && result.candidates.length > 0 &&
                     result.candidates[0].content && result.candidates[0].content.parts &&
@@ -2541,6 +2570,16 @@
                 mobileMenuButton.addEventListener('click', window.toggleMobileMenu);
             }
         });
+
+        // Add a helper function for calling the backend
+        async function generateGeminiHint(prompt) {
+            const response = await fetch('/api/generate-hint', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt })
+            });
+            return await response.json();
+        }
     </script>
 </body>
 </html>
