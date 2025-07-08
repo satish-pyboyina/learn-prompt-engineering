@@ -1,15 +1,18 @@
 // netlify/functions/generate.js
 
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 exports.handler = async function (event, context) {
+  // Only allow POST
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
       body: JSON.stringify({ error: 'Method Not Allowed' }),
+      headers: { 'Content-Type': 'application/json' },
     };
   }
 
+  // Parse JSON body safely
   let body;
   try {
     body = JSON.parse(event.body);
@@ -17,6 +20,7 @@ exports.handler = async function (event, context) {
     return {
       statusCode: 400,
       body: JSON.stringify({ error: 'Invalid JSON' }),
+      headers: { 'Content-Type': 'application/json' },
     };
   }
 
@@ -24,50 +28,44 @@ exports.handler = async function (event, context) {
     return {
       statusCode: 400,
       body: JSON.stringify({ error: 'Missing prompt in request body' }),
+      headers: { 'Content-Type': 'application/json' },
     };
   }
 
-  try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'API key not found.' }),
-      };
-    }
-
-    const { prompt } = body;
-
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-    const payload = {
-      contents: [
-        { role: 'user', parts: [{ text: prompt }] }
-      ]
+  // Gemini API call
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  if (!GEMINI_API_KEY) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Gemini API key not set in environment' }),
+      headers: { 'Content-Type': 'application/json' },
     };
+  }
 
-    const googleResponse = await fetch(apiUrl, {
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+  const payload = {
+    contents: [
+      { role: 'user', parts: [{ text: body.prompt }] }
+    ]
+  };
+
+  try {
+    const apiRes = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-
-    if (!googleResponse.ok) {
-      const errorText = await googleResponse.text();
-      throw new Error(`Google API Error: ${errorText}`);
-    }
-
-    const data = await googleResponse.json();
-
+    const data = await apiRes.json();
     return {
       statusCode: 200,
       body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' },
     };
-
-  } catch (error) {
+  } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
+      body: JSON.stringify({ error: 'Failed to fetch from Gemini API', details: err.message }),
+      headers: { 'Content-Type': 'application/json' },
     };
   }
 };
