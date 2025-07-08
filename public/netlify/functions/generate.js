@@ -1,5 +1,7 @@
 // netlify/functions/generate.js
 
+const fetch = require('node-fetch');
+
 exports.handler = async function (event, context) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
