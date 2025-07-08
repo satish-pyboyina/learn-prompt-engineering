@@ -2573,12 +2573,13 @@
 
         // Add a helper function for calling the backend
         async function generateGeminiHint(prompt) {
-            const response = await fetch('/api/generate-hint', {
+            const response = await fetch('/.netlify/functions/generate-hint', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt })
             });
-            return await response.json();
+            const result = await response.json();
+            return result.candidates[0].content.parts[0].text;
         }
     </script>
 </body>
