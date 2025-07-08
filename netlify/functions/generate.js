@@ -3,6 +3,30 @@
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 exports.handler = async function (event, context) {
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: 'Method Not Allowed' }),
+    };
+  }
+
+  let body;
+  try {
+    body = JSON.parse(event.body);
+  } catch (e) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Invalid JSON' }),
+    };
+  }
+
+  if (!body || !body.prompt) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Missing prompt in request body' }),
+    };
+  }
+
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
@@ -12,7 +36,7 @@ exports.handler = async function (event, context) {
       };
     }
 
-    const { prompt } = JSON.parse(event.body);
+    const { prompt } = body;
 
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
