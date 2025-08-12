@@ -1,7 +1,8 @@
 **Interactive Guide: Prompt Engineering for Gemini**
 A interactive web application designed as a comprehensive, hands-on tutorial for Prompt Engineering specifically for Google's Gemini models. The application transforms a traditional course outline into a dynamic and engaging learning experience, covering everything from foundational concepts to advanced, state-of-the-art techniques.
 
-**URL**: https://prompt-engg-learning-app.web.app/
+**URL**: https://prompt-engg-learning-app.web.app
+
 **Hosted on**: Firebase
 
 **Features**
